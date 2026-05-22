@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Cafe - Pro Logic</title>
+    <style>
+        :root {
+            --cafe-dark: #2c1e1a;
+            --cafe-accent: #d4a373;
+            --success-green: #4CAF50;
+            --warning-red: #ff5252;
+        }
+
+        body {
+            font-family: 'Trebuchet MS', sans-serif;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://img.freepik.com/free-photo/painted-cup-coffee-with-natural-coffee-beans-chalkboard_1220-782.jpg?w=740&q=80');
+            background-size: cover;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; overflow: hidden; cursor: none; 
+        }
+
+        #cursor-glow {
+            width: 20px; height: 20px; background: var(--cafe-accent); border-radius: 50%;
+            position: fixed; pointer-events: none; box-shadow: 0 0 20px 10px rgba(212, 163, 115, 0.8);
+            z-index: 99999; transform: translate(-50%, -50%);
+        }
+
+        .login-card { background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; width: 420px; text-align: center; }
+
+        .row { display: flex; align-items: center; margin-bottom: 10px; height: 50px; position: relative; }
+
+        .verify-btn {
+            background: var(--cafe-dark); color: white; border: none; height: 50px;
+            padding: 0 15px; border-radius: 8px 0 0 8px; font-weight: bold; cursor: none;
+        }
+
+        input, select {
+            width: 100%; padding: 14px; border: 2px solid #ddd;
+            border-radius: 8px; box-sizing: border-box; transition: 0.3s;
+        }
+
+        /* Suggestion Overlay */
+        .input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+        #suggestion {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: #bbb; pointer-events: none; font-size: 14px; white-space: pre;
+        }
+
+        .pass-container { position: relative; flex: 1; }
+        .toggle-pass {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            cursor: none; color: #888; background: none; border: none;
+        }
+
+        .success-field { border: 2px solid var(--success-green) !important; background-color: #f9fff9; }
+        .shake { animation: shakeAnim 0.4s ease-in-out; border-color: var(--warning-red) !important; }
+        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        #otpPanel, #passPanel, #captchaPanel { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .captcha-box { background: #333; color: #fff; padding: 12px; letter-spacing: 8px; border-radius: 8px; margin: 10px 0; font-weight: bold; }
+        .action-btn { width: 100%; padding: 14px; background: var(--cafe-accent); border: none; border-radius: 8px; font-weight: bold; cursor: none; }
+
+        #warningOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 50000; justify-content: center; align-items: center;
+        }
+        .warning-popup { background: white; padding: 30px; border-radius: 15px; width: 320px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<div id="warningOverlay">
+    <div class="warning-popup">
+        <h3 style="color: var(--warning-red); margin: 0 0 10px 0;">Invalid Information</h3>
+        <p id="warningText" style="font-size: 0.9rem;"></p>
+        <button onclick="document.getElementById('warningOverlay').style.display='none'" style="background:var(--cafe-dark); color:white; border:none; padding:10px 20px; border-radius:5px; margin-top:15px; cursor:none;">Try Again</button>
+    </div>
+</div>
+
+<div class="login-card">
+    <h2 style="color: var(--cafe-dark);">☕ LOGIN TO BOOK</h2>
+    
+    <div class="row">
+        <button type="button" class="verify-btn" id="vUserBtn">Verify</button>
+        <div id="countryWrapper" style="display:flex; width:80px;">
+            <select id="cCode" style="border-radius:0; border-left:none; border-right:none; height:50px;">
+                <option value="+1">+1</option>
+                <option value="+91">+92</option>
+                <option value="+91">+93</option>
+                <option value="+91">+8</option>
+                <option value="+91">+921</option>
+                <option value="+91">+99</option>
+                <option value="+91">+98</option>
+                <option value="+91">+90</option>
+            </select>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" id="user" placeholder="Gmail or 10-digit Mobile" style="border-radius:0 8px 8px 0; height:50px;" autocomplete="off">
+            <span id="suggestion"></span>
+        </div>
+    </div>
+
+    <div id="otpPanel">
+        <div class="row">
+            <button id="vOtpBtn" class="verify-btn">Verify</button>
+            <input type="text" id="otpIn" placeholder="OTP: 1234" maxlength="4" style="border-radius:0 8px 8px 0;">
+        </div>
+    </div>
+
+    <div id="passPanel">
+        <div class="row">
+            <button type="button" class="verify-btn" id="vPassBtn">Verify</button>
+            <div class="pass-container">
+                <input type="password" id="passIn" placeholder="Enter Password" style="border-radius:0 8px 8px 0; height:50px;">
+                <button type="button" class="toggle-pass" id="eye">👁️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="captchaPanel">
+        <div class="captcha-box" id="capBox">XXXXX</div>
+        <input type="text" id="capIn" placeholder="Enter Captcha">
+        <button id="authBtn" class="action-btn">Authenticate</button>
+    </div>
+</div>
+
+<script>
+    const glow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', (e) => {
+        glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px';
+    });
+
+    const userIn = document.getElementById('user');
+    const sugg = document.getElementById('suggestion');
+    const targetDomain = "gmail.com";
+
+    // 10 DIGIT RESTRICTION & SMART SUGGESTION
+    userIn.addEventListener('input', function() {
+        let val = this.value;
+
+        // Restriction: If no @, limit to 10 digits
+        if (!val.includes('@')) {
+            if (val.length > 10) this.value = val.slice(0, 10);
+            document.getElementById('countryWrapper').style.display = 'flex';
+            sugg.innerText = "";
+        } else {
+            // Suggestion Logic
+            document.getElementById('countryWrapper').style.display = 'none';
+            const parts = val.split('@');
+            const domainPart = parts[1] || "";
+            
+            if (targetDomain.startsWith(domainPart) && domainPart !== targetDomain) {
+                const visibleText = val + targetDomain.slice(domainPart.length);
+                sugg.innerText = visibleText.replace(/./g, ' ') + targetDomain.slice(domainPart.length); // Offset hack
+                // Precise overlay alignment
+                sugg.innerHTML = `<span style="color:transparent">${val}</span>${targetDomain.slice(domainPart.length)}`;
+            } else { sugg.innerText = ""; }
+        }
+    });
+
+    // TAB TO COMPLETE
+    userIn.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab' && sugg.innerText !== "") {
+            e.preventDefault();
+            const parts = this.value.split('@');
+            this.value = parts[0] + "@" + targetDomain;
+            sugg.innerText = "";
+        }
+    });
+
+    // PASSWORD VIEW TOGGLE
+    document.getElementById('eye').addEventListener('click', function() {
+        const passField = document.getElementById('passIn');
+        passField.type = (passField.type === "password") ? "text" : "password";
+        this.innerText = (passField.type === "password") ? "👁️" : "🔒";
+    });
+
+    // VERIFY USER
+    document.getElementById('vUserBtn').addEventListener('click', function() {
+        const val = userIn.value.trim();
+        if (val.toLowerCase().endsWith('@gmail.com') || /^\d{10}$/.test(val)) {
+            this.style.display = 'none';
+            userIn.style.borderRadius = "8px";
+            document.getElementById('otpPanel').style.display = 'block';
+        } else { userIn.classList.add('shake'); setTimeout(()=>userIn.classList.remove('shake'), 400); }
+    });
+
+    // VERIFY OTP AND HIDE
+    document.getElementById('vOtpBtn').addEventListener('click', function() {
+        if(document.getElementById('otpIn').value === "1234") {
+            document.getElementById('otpPanel').style.display = 'none';
+            userIn.classList.add('success-field');
+            userIn.disabled = true;
+            document.getElementById('passPanel').style.display = 'block';
+        } else { alert("Wrong OTP"); }
+    });
+
+    // PASSWORD VERIFY
+    const captchaVal = Math.random().toString(36).substring(2, 7).toUpperCase();
+    document.getElementById('vPassBtn').addEventListener('click', function() {
+        const pass = document.getElementById('passIn').value;
+        let errs = [];
+        if (pass.length < 8) errs.push("• At least 8 characters.");
+        if (!/[A-Z]/.test(pass)) errs.push("• At least one capital letter.(A-Z)");
+        if (!/[0-9]/.test(pass)) errs.push("• At least one number.(0-9)");
+        if (!/[!@#$%^&*]/.test(pass)) errs.push("• At least one symbol.(!@#$%^&*)");
+
+        if (errs.length > 0) {
+            document.getElementById('warningText').innerHTML = errs.join("<br>");
+            document.getElementById('warningOverlay').style.display = 'flex';
+        } else {
+            this.style.display = 'none';
+            document.getElementById('passIn').classList.add('success-field');
+            document.getElementById('passIn').disabled = true;
+            document.getElementById('capBox').innerText = captchaVal;
+            document.getElementById('captchaPanel').style.display = 'block';
+        }
+    });
+
+    // FINAL AUTH
+    document.getElementById('authBtn').addEventListener('click', () => {
+        if (document.getElementById('capIn').value.toUpperCase() === captchaVal) {
+            alert("Login Complete!");
+        } else {
+            document.getElementById('capIn').classList.add('shake');
+            setTimeout(()=>document.getElementById('capIn').classList.remove('shake'), 400);
+        }
+    });
+</script>
+</body>
+</html>
