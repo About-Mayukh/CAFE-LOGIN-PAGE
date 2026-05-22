@@ -5,7 +5,7 @@ Author :- MAYUKH DEY
 <br>
 a opt based login page for cafe 
 <br>
-<a>FEATURE :-<a>
+<p>FEATURE :-<p>
 <p>*Country code 
 <br>
 *OTP
