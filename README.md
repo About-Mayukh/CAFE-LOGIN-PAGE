@@ -8,8 +8,8 @@ a opt based login page for cafe
 <a>FEATURE :-<a>
 *Country code 
 <br>
-    *OTP
+<p>    *OTP<p>
 <br>
-    *Capture
+<p>    *Capture<p>
 <br>
-    *Rules for Password
+<p>    *Rules for Password<p>
