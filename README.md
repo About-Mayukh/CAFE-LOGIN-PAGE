@@ -6,10 +6,10 @@ Author :- MAYUKH DEY
 a opt based login page for cafe 
 <br>
 <a>FEATURE :-<a>
-<p>*Country code<p> 
+<p>*Country code 
 <br>
-<p>*OTP<p>
+*OTP
 <br>
-<p>*Capture<p>
+*Capture
 <br>
-<p>*Rules for Password<p>
+*Rules for Password<p>
